@@ -1,0 +1,396 @@
+<html>
+    <style>
+    html {
+        position: relative;
+        min-width: 768px;
+        min-height: 1024px;
+        height: 100%;
+    }
+    body {
+        color: red;
+    }
+    table, th, td {
+        border: 1px solid red;
+    }
+    p
+    {
+    margin: 0;
+    padding: 0;
+    }
+    </style>
+    <center>
+        <body background="background.jpg">
+        <div id="game">
+            <h1>Welcome to Dungeon Monster Royale</h1><br>
+            <h2>Here is a tutorial video</h2>
+            <iframe width="784" height="441" src="https://www.youtube.com/embed/LHywQ02wadE" frameborder="0" allowfullscreen></iframe><br>
+            <input type="button" id="startButton" onclick="start()" value="Click here to play!">
+        </div>
+        <div id="console">
+        </div>
+<script type="text/javascript">
+var numPlayers = 3;
+var player1 = [0,0,0];
+var player2 = [0,0,0];
+var player3 = [0,0,0];
+var gameBoard = ["","","","","","","","",""];
+var monsterBoard = [0,0,0,0,0,0,0,0,0];
+var player1Pos = [false,false,false,false,false,false,false,false,false];
+var player2Pos = [false,false,false,false,false,false,false,false,false];
+var player3Pos = [false,false,false,false,false,false,false,false,false];
+var player1Placed = false;
+var player2Placed = false;
+var player3Placed = false;
+var player1Left = [true,true,true];
+var player2Left = [true,true,true];
+var player3Left = [true,true,true];
+var attackStyles = [1,1,1,2,2,2,3,3,3];
+var weaknesses = [1,2,3,1,2,3,1,2,3];
+var monsterUsed = 0;
+var monsterPos = 0;
+function start()
+{
+    numPlayers = 3;
+    player1 = [0,0,0];
+    player2 = [0,0,0];
+    player3 = [0,0,0];
+    gameBoard = ["","","","","","","","",""];
+    monsterBoard = [0,0,0,0,0,0,0,0,0];
+    player1Pos = [false,false,false,false,false,false,false,false,false];
+    player2Pos = [false,false,false,false,false,false,false,false,false];
+    player3Pos = [false,false,false,false,false,false,false,false,false];
+    player1Placed = false;
+    player2Placed = false;
+    player3Placed = false;
+    player1Left = [true,true,true];
+    player2Left = [true,true,true];
+    player3Left = [true,true,true];
+    attackStyles = [1,1,1,2,2,2,3,3,3];
+    weaknesses = [1,2,3,1,2,3,1,2,3];
+    monsterUsed = 0;
+    monsterPos = 0;
+    document.getElementById("game").innerHTML =  '<p style="font-size:24px;">Pick your team of 3 monsters!</p> <br> <p style="font-size:24px;">Weaknesses - columns</p><br><p style="font-size:24px;">Strengths - rows</p> '+
+        '<table>'+
+        '<tr><th><b></b>'+
+        '<th><p style="font-size:24px;">Magic</p></th>'+
+        '<th><p style="font-size:24px;">Poison</p></th>'+
+        '<th><p style="font-size:24px;">Melee</h1></p></th>'+
+        '</tr><tr><th><p style="font-size:24px;">Magic</p></th><th><input type="image" src="monster1.png" id="teamButton1" onclick="add(1)" height="128" width="128"></th>'+
+        '<th><input type="image" src="monster2.png" id="teamButton2" onclick="add(2)" height="128" width="128"></th>'+
+        '<th><input type="image" src="monster3.png" id="teamButton3" onclick="add(3)" height="128" width="128"></th>'+
+        '</tr><tr><th><p style="font-size:24px;">Poison</p></th><th><input type="image" src="monster4.png" id="teamButton4" onclick="add(4)" height="128" width="128"></th>'+
+        '<th><input type="image" src="monster5.png" id="teamButton5" onclick="add(5)" height="128" width="128"></th>'+
+        '<th><input type="image" src="monster6.png" id="teamButton6" onclick="add(6)" height="128" width="128"></th>'+
+        '</tr><tr><th><p style="font-size:24px;">Melee</p></th><th><input type="image" src="monster7.png" id="teamButton7" onclick="add(7)" height="128" width="128"></th>'+
+        '<th><input type="image" src="monster8.png" id="teamButton8" onclick="add(8)" height="128" width="128"></th>'+
+        '<th><input type="image" src="monster9.png" id="teamButton9" onclick="add(9)" height="128" width="128"></th></tr></table>';
+    document.getElementById("console").innerHTML = '';
+}
+    
+function add(x)
+{
+    if(player1[0] == 0)
+    {
+        player1[0] = x;
+        player2[0] = getRandomInt(1,9);
+        player3[0] = getRandomInt(1,9);
+    } 
+    else if(player1[1] == 0)
+    {
+        player1[1] = x;
+        player2[1] = getRandomInt(1,9);
+        player3[1] = getRandomInt(1,9);
+    }
+    else if(player1[2] == 0)
+    {
+        player1[2] = x;
+        player2[2] = getRandomInt(1,9);
+        player3[2] = getRandomInt(1,9);
+        createPlayfield3();  
+    }
+}
+
+function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function createPlayfield3()//3 players
+{
+    var x = 0;
+    while(x<gameBoard.length)//Create player locatioos on field
+    {
+        var rand = getRandomInt(1,numPlayers);
+        if(rand == 1 && !player1Placed)
+        {
+            gameBoard[x] = "player1";
+            if(player1Left[0])
+            {
+                player1Left[0] = false;
+                monsterBoard[x] = player1[0];
+                player1Pos[x] = true;
+            }
+            else if(player1Left[1])
+            {
+                player1Left[1] = false;
+                monsterBoard[x] = player1[1];
+                player1Pos[x] = true;
+            }
+            else
+            {
+                player1Placed = true;
+                monsterBoard[x] = player1[2];
+                player1Pos[x] = true;
+            }
+            x++;
+        }
+        else
+            rand = getRandomInt(2,numPlayers);
+        if(rand == 2 && !player2Placed)
+        {
+            gameBoard[x] = "player2";
+            if(player2Left[0])
+            {
+                player2Left[0] = false;
+                monsterBoard[x] = player2[0];
+                player2Pos[x] = true;
+            }
+            else if(player2Left[1])
+            {
+                player2Left[1] = false;
+                monsterBoard[x] = player2[1];
+                player2Pos[x] = true;
+            }
+            else
+            {
+                player2Placed = true;
+                monsterBoard[x] = player2[2];
+                player2Pos[x] = true;
+            }
+            x++;
+        
+        }
+        else
+            rand = 3;
+        if(rand == 3 && !player3Placed)
+        {
+            gameBoard[x] = "player3";
+            if(player3Left[0])
+            {
+                player3Left[0] = false;
+                monsterBoard[x] = player3[0];
+                player3Pos[x] = true;
+            }
+            else if(player3Left[1])
+            {
+                player3Left[1] = false;
+                monsterBoard[x] = player3[1];
+                player3Pos[x] = true;
+            }
+            else
+            {
+                player3Placed = true;
+                monsterBoard[x] = player3[2];
+                player3Pos[x] = true;
+            }
+            x++;
+        }   
+    }
+    document.getElementById("game").innerHTML = '';
+    //show playing field
+    for(var a = 0;a<gameBoard.length;a++)
+    {
+        if(gameBoard[a] == "player1")
+        {
+            document.getElementById("game").innerHTML += '<input type="image" src="monster'+monsterBoard[a]+'.png" id="'+a.toString()+'" onclick="use('+monsterBoard[a]+','+a+')" height="128" width="128">';
+        }
+        else
+            document.getElementById("game").innerHTML += '<input type="image" src="mystery.png" id="'+a.toString()+'" onclick="attack('+monsterBoard[a]+','+a+',true)" height="128" width="128">';
+        if(a == 2 || a == 5 || a == 8)
+            document.getElementById("game").innerHTML += '<br>'
+    }
+    document.getElementById("console").innerHTML = '<h1>Player 1 : Pick your monster to use</h1>';
+}
+
+function use(x,position)
+{
+    document.getElementById("console").innerHTML = '<h1>Player 1 : Pick the monster to attack.</h1>';
+    monsterUsed = x;
+    monsterPos = position;
+}
+    
+function attack(x,position,player)//x is the monster targeted, postion is the target position, and "player" is true if player attacks
+{
+  if(monsterUsed !== 0)
+  {
+    if(attackStyles[monsterUsed-1] == weaknesses[x-1])//enemy monster with weakness died
+    {
+        if(!player1Pos[monsterPos])//only change images that are not the single player
+            document.getElementById(monsterPos.toString()).src = "mystery"+attackStyles[monsterUsed-1]+".png";
+        document.getElementById(position.toString()).src = "dead.png";
+        document.getElementById(position.toString()).onclick = "";
+        document.getElementById("console").innerHTML += '<h1>The enemy was killed by its weakness.</h1>';
+        gameBoard[position] = "dead";
+    }
+    else if(attackStyles[x-1] == weaknesses[monsterUsed-1])//your monster with weakness died
+    {
+        if(!player1Pos[position])//only change images that are not the single player
+            document.getElementById(position.toString()).src = "mystery"+attackStyles[x-1]+".png";
+        document.getElementById(monsterPos.toString()).src = "dead.png";
+        document.getElementById(monsterPos.toString()).onclick = "";
+        document.getElementById("console").innerHTML += '<h1>Your monster was killed by its weakness.</h1>';
+        gameBoard[monsterPos] = "dead";
+    }
+    else//flip a coin to see who wins
+    {
+        rand = getRandomInt(1,2);
+        if(rand == 1)//Success!
+        {
+            if(!player1Pos[monsterPos])//only change images that are not the single player
+                document.getElementById(monsterPos.toString()).src = "mystery"+attackStyles[monsterUsed-1]+".png";
+            document.getElementById(position.toString()).src = "dead.png";
+            document.getElementById("console").innerHTML += '<h1>The enemy was killed by chance.</h1>';
+            gameBoard[position] = "dead";
+        }
+        else//faliure
+        {
+            if(!player1Pos[position])//only change images that are not the single player
+                document.getElementById(position.toString()).src = "mystery"+attackStyles[x-1]+".png";
+            document.getElementById(monsterPos.toString()).src = "dead.png";
+            document.getElementById(monsterPos.toString()).onclick = "";
+            document.getElementById("console").innerHTML += '<h1>Oh no! Your monster was killed by chance.</h1>';
+            gameBoard[monsterPos] = "dead";
+        }
+    }
+    //document.getElementById("console").innerHTML += '<h1>'+attackStyles[x-1]+'</h1>';
+    //document.getElementById("console").innerHTML += '<h1>'+attackStyles[monsterUsed-1]+'</h1>';
+    disableButtons(true);
+    if(player)
+        document.getElementById("console").innerHTML +=  '<button type="button" onclick="player2Attack()">Continue to next player</button>';
+    checkBoard();
+  }
+  else if(!player)
+      document.getElementById("console").innerHTML += "<h1>is dead</h1>";
+}
+
+function player2Attack()//computer attack
+{
+    document.getElementById("console").innerHTML = '';
+    document.getElementById("console").innerHTML = '<h1>Computer - Player 2 :</h1>';
+    monsterUsed = 0;
+    monsterPos = 0;
+    var boardPos = 0;
+    while(monsterUsed == 0 && boardPos < 9)
+    {
+        if(gameBoard[boardPos] == "player2")
+        {
+            monsterUsed = monsterBoard[boardPos];
+            monsterPos = boardPos;
+        }
+        boardPos++;
+    }
+    var targetUsed = 0;
+    var targetPos = 0;
+    var boardPos = 0;
+    while(targetUsed == 0 && boardPos < 9)
+    {
+        if(gameBoard[boardPos] !== "player2" && gameBoard[boardPos] !== "dead")
+        {
+            targetUsed = monsterBoard[boardPos];
+            targetPos = boardPos;
+        }
+        boardPos++;
+    }
+    attack(targetUsed,targetPos,false);
+    document.getElementById("console").innerHTML +=  '<button type="button" onclick="player3Attack()">Player 2 finished turn, continue</button>';
+    checkBoard();
+}
+
+function player3Attack()//computer attack
+{
+    document.getElementById("console").innerHTML = '';
+    document.getElementById("console").innerHTML = '<h1>Computer - Player 3 :</h1>';
+    monsterUsed = 0;
+    monsterPos = 0;
+    var boardPos = 0;
+    while(monsterUsed == 0 && boardPos < 9)
+    {
+        if(gameBoard[boardPos] == "player3")
+        {
+            monsterUsed = monsterBoard[boardPos];
+            monsterPos = boardPos;
+        }
+        boardPos++;
+    }
+    var targetUsed = 0;
+    var targetPos = 0;
+    var boardPos = 0;
+    while(targetUsed == 0 && boardPos < 9)
+    {
+        if(gameBoard[boardPos] !== "player3" && gameBoard[boardPos] !== "dead")
+        {
+            targetUsed = monsterBoard[boardPos];
+            targetPos = boardPos;
+        }
+        boardPos++;
+    }
+    attack(targetUsed,targetPos,false);
+    document.getElementById("console").innerHTML += '<h1>Player 3 finished turn, Your turn!</h1>';
+    checkBoard();
+    disableButtons(false);
+}    
+    
+function checkBoard()
+{
+    //Check if player wins
+    var win = 2;//1-won, 0=lost, 2-continue
+    var unitsLeft = 0;
+    var boardPos = 0;
+    while(boardPos < 9)//check for remaining player units
+    {
+        if(player1Pos[boardPos] && gameBoard[boardPos] !== "dead")
+        {
+            win = 1;
+            unitsLeft++;
+        }
+        boardPos++;
+    }
+    var boardPos = 0;
+    while(boardPos < 9)//check for remaining player units
+    {
+        if((player2Pos[boardPos] || player3Pos[boardPos]) && gameBoard[boardPos] !== "dead")
+        {
+            win = 2;
+        }
+        boardPos++;
+    }
+    if(win == 1)
+        document.getElementById("console").innerHTML = '<h1>You won the game!</h1><br><input type="button" id="startButton" onclick="start()" value="Restart">';
+    if(unitsLeft == 0)//player losses
+        document.getElementById("console").innerHTML = '<h1>You lose the game.</h1><br><input type="button" id="startButton" onclick="start()" value="Restart">';
+}
+
+function disableButtons(disable)
+{
+    if(disable)
+    {
+        boardPos = 0
+        while(boardPos < 9)
+        {
+            document.getElementById(boardPos.toString()).setAttribute("disabled","disabled");
+            boardPos++;
+        }
+    }
+    else
+    {
+        boardPos = 0
+        while(boardPos < 9)
+        {
+            document.getElementById(boardPos.toString()).removeAttribute("disabled");
+            boardPos++;
+        }
+    }
+}
+</script>
+</body>
+</center>
+</html>
